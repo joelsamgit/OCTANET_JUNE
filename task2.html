@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://hbr.org/resources/images/article_assets/2020/08/Aug20_06_84753778.jpg');
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Solid_white_bordered.svg/2048px-Solid_white_bordered.svg.png');
+            background-size: cover;
+            width: 525px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            top: 50px;
+            left: 50px;
+        }
+        .task-list-container {
+            width: 525px;
+            position: absolute;
+            top: 50px;
+            left: 70%; /* Starts from 70% from the left of the whole page */
+            text-align: center;
+            transform: translateX(-70%);
+        }
+        .task-list-container .title {
+            font-size: 34px;
+            margin-bottom: 20px;
+            color: black;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-family: 'Northern Soul', cursive; /* Changed font */
+            margin-left: 120px;
+        }
+        .task-list-container .overlay {
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Solid_white_bordered.svg/2048px-Solid_white_bordered.svg.png');
+            background-size: cover;
+            width: 700px; /* Increased by 20% */
+            height: 700px; /* Decreased by 20% */
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        h1 {
+            font-family: 'Northern Soul', cursive; /* Changed font */
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .top-bar {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .task-input {
+            margin-bottom: 10px;
+        }
+        .task-input input,
+        .task-input select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .task-input button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .task-input button:hover {
+            background-color: #218838;
+        }
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .task-list li {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-list li.complete {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-list button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .task-list button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="#">Sign in</a>
+        <a href="#">Help</a>
+    </div>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <div class="task-input">
+            <input type="text" id="task-input" placeholder="Enter your task">
+            <select id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <input type="date" id="task-date">
+            <button onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+    <div class="task-list-container">
+        <div class="title">To Do List</div>
+        <div class="overlay">
+            <ul id="task-list" class="task-list">
+                <!-- Ensure the image is displayed even without tasks -->
+                <li style="background: none; padding: 0; margin: 0; height: 100%;"></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskPriority = document.getElementById('task-priority');
+            const taskDate = document.getElementById('task-date');
+            const taskList = document.getElementById('task-list');
+
+            if (taskInput.value === '') {
+                alert('Please enter a task.');
+                return;
+            }
+
+            // Remove placeholder list item
+            const placeholder = taskList.querySelector('li[style]');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            const taskItem = document.createElement('li');
+            taskItem.innerHTML = `
+                <span>
+                    ${taskInput.value} - ${taskPriority.value} priority - due by ${taskDate.value}
+                </span>
+                <button onclick="deleteTask(this)">Delete</button>
+                <button onclick="completeTask(this)">Complete</button>
+            `;
+            taskList.appendChild(taskItem);
+
+            taskInput.value = '';
+            taskPriority.value = 'low';
+            taskDate.value = '';
+
+            const bullet = document.createElement('span');
+            bullet.innerHTML = '&nbsp;&bull;&nbsp;';
+            taskItem.insertBefore(bullet, taskItem.firstChild);
+        }
+
+        function deleteTask(button) {
+            const taskItem = button.parentElement;
+            taskItem.remove();
+
+            // Add placeholder list item if no tasks are left
+            const taskList = document.getElementById('task-list');
+            if (taskList.children.length === 0) {
+                const placeholder = document.createElement('li');
+                placeholder.style = 'background: none; padding: 0; margin: 0; height: 100%;';
+                taskList.appendChild(placeholder);
+            }
+        }
+
+        function completeTask(button) {
+            const taskItem = button.parentElement;
+            taskItem.classList.toggle('complete');
+
+
+        }
+    </script>
+</body>
+</html>
